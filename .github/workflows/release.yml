@@ -1,0 +1,153 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          release-type: node
+
+  build-node-bindings:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: win32-x64-msvc
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            name: darwin-arm64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: linux-x64-gnu
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            name: linux-arm64-gnu
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Build
+        run: npm run build
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: node-bindings-${{ matrix.name }}
+          path: dist/*.node
+          
+      - name: Upload JS bindings
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-bindings
+          path: dist/
+
+  build-gui:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Build GUI
+        run: cargo build --release --bin dct_watermark --features gui
+        
+      - name: Upload GUI artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gui-exe
+          path: target/release/dct_watermark.exe
+
+  publish:
+    needs: [release-please, build-node-bindings, build-gui]
+    if: needs.release-please.outputs.release_created == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+          
+      - name: Install dependencies
+        run: npm install
+        
+      - name: Download JS bindings
+        uses: actions/download-artifact@v4
+        with:
+          name: js-bindings
+          path: dist
+          
+      - name: Download Node bindings
+        uses: actions/download-artifact@v4
+        with:
+          path: .
+          pattern: node-bindings-*
+          merge-multiple: true
+
+      - name: Setup NPM Dirs
+        run: |
+          npm run create-npm-dirs
+          npm run artifacts
+
+      - name: Prepare Root Package and Publish Sub-packages
+        run: npm run prepublishOnly
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Remove scripts field
+        run: npm pkg delete scripts devDependencies
+
+      - name: Publish to NPM
+        run: npm publish --access public --provenance --ignore-scripts
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Download GUI artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: gui-exe
+          path: gui
+          
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
+          files: |
+            gui/dct_watermark.exe
+          fail_on_unmatched_files: true

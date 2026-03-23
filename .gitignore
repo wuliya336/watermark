@@ -1,0 +1,6 @@
+/target
+*.node
+npm
+node_modules
+dist
+

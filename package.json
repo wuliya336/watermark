@@ -1,0 +1,42 @@
+{
+  "name": "@ikenxuan/watermark",
+  "version": "0.1.0",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ikenxuan/watermark"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "napi": {
+    "binaryName": "dct_watermark",
+    "targets": [
+      "x86_64-pc-windows-msvc",
+      "aarch64-apple-darwin",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu"
+    ]
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "npm"
+  ],
+  "scripts": {
+    "artifacts": "napi artifacts",
+    "build": "napi build --platform --release --esm --output-dir dist",
+    "build:debug": "napi build --platform --esm --output-dir dist",
+    "create-npm-dirs": "napi create-npm-dirs",
+    "gui": "cargo build --release --bin dct_watermark --features gui",
+    "prepublishOnly": "napi prepublish --no-gh-release"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.5.1"
+  }
+}
