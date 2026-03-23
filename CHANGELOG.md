@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/ikenxuan/watermark/compare/v1.0.4...v1.0.5) (2026-03-23)
+
+
+### Bug Fixes
+
+* 提升性能 ([452bc93](https://github.com/ikenxuan/watermark/commit/452bc936016c8f485ce629ae05d780f8331f4c5b))
+
 ## [1.0.4](https://github.com/ikenxuan/watermark/compare/v1.0.3...v1.0.4) (2026-03-23)
 
 
