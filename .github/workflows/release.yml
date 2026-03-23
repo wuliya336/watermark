@@ -22,6 +22,8 @@ jobs:
         id: release
         with:
           release-type: node
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-node-bindings:
     needs: release-please
