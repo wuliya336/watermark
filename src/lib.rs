@@ -30,7 +30,12 @@ pub fn embed_watermark_to_png_bytes(
         .ok_or_else(|| Error::from_reason("Embed failed"))?;
 
     let mut out = Vec::new();
-    image::codecs::png::PngEncoder::new(&mut out)
+    let encoder = image::codecs::png::PngEncoder::new_with_quality(
+        &mut out,
+        image::codecs::png::CompressionType::Default,
+        image::codecs::png::FilterType::NoFilter,
+    );
+    encoder
         .write_image(
             &embedded,
             width as u32,
