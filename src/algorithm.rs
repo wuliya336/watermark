@@ -191,7 +191,7 @@ fn evaluate_payload_candidates(
 
         let mut merged_bits = vec![0u8; payload_bits];
         let mut vote_confidence_sum = 0.0f64;
-        for bit_pos in 0..payload_bits {
+        for (bit_pos, merged_bit) in merged_bits.iter_mut().enumerate() {
             let mut votes = 0i32;
             let actual_copies = if phase + (effective_copies - 1) * payload_bits + bit_pos < remaining {
                 effective_copies
@@ -201,7 +201,7 @@ fn evaluate_payload_candidates(
             
             if actual_copies == 0 {
                 // 如果这个位连一次都没抄到，只能蒙一个0
-                merged_bits[bit_pos] = 0;
+                *merged_bit = 0;
                 continue;
             }
 
@@ -215,7 +215,7 @@ fn evaluate_payload_candidates(
                     }
                 }
             }
-            merged_bits[bit_pos] = if votes > 0 { 1 } else { 0 };
+            *merged_bit = if votes > 0 { 1 } else { 0 };
             vote_confidence_sum += (votes.unsigned_abs() as f64) / (actual_copies as f64);
         }
 
@@ -444,7 +444,7 @@ fn robust_embed(
         return None;
     }
 
-    let use_v1 = watermark_text.as_bytes().len() <= MAX_WATERMARK_TEXT_BYTES_V1;
+    let use_v1 = watermark_text.len() <= MAX_WATERMARK_TEXT_BYTES_V1;
     let payload_bits = if use_v1 {
         let payload = build_watermark_payload_v1(watermark_text);
         payload

@@ -1,0 +1,116 @@
+name: Build NPM Lib
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  APP_NAME: watermark
+  APP_PATH: .
+
+jobs:
+  build_windows:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            label: windows-x86_64
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 构建
+        id: build
+        uses: puniyu/napi-build-action@ca05545af23083e05e5ab39fd94541607ddd3a7d # main
+        with:
+          target: ${{ matrix.platform.target }}
+          cwdDir: ${{ env.APP_PATH }}
+          esm: true
+
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "${{ env.APP_NAME }}-node-${{ matrix.platform.label }}"
+          path: ${{ steps.build.outputs.output-path }}
+
+  build_macos:
+    runs-on: ${{ matrix.platform.runner }}
+    strategy:
+      matrix:
+        platform:
+          - runner: macos-latest
+            target: x86_64-apple-darwin
+            label: macos-x86_64
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            label: macos-aarch64
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 构建
+        id: build
+        uses: puniyu/napi-build-action@ca05545af23083e05e5ab39fd94541607ddd3a7d # main
+        with:
+          target: ${{ matrix.platform.target }}
+          cwdDir: ${{ env.APP_PATH }}
+          esm: true
+
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "${{ env.APP_NAME }}-node-${{ matrix.platform.label }}"
+          path: ${{ steps.build.outputs.output-path }}
+
+  build_linux:
+    runs-on: ${{ matrix.platform.runner }}
+    container: ${{ matrix.platform.container }}
+    strategy:
+      matrix:
+        platform:
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            label: linux-x86_64
+            container: ghcr.io/puniyu/debian:latest
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            label: linux-aarch64
+            container: ghcr.io/puniyu/debian:latest
+
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: 构建
+        id: build
+        uses: puniyu/napi-build-action@ca05545af23083e05e5ab39fd94541607ddd3a7d # main
+        with:
+          target: ${{ matrix.platform.target }}
+          cwdDir: ${{ env.APP_PATH }}
+          esm: true
+
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "${{ env.APP_NAME }}-node-${{ matrix.platform.label }}"
+          path: ${{ steps.build.outputs.output-path }}
+
+      - name: 移除开发依赖
+        run: pnpm pkg delete scripts devDependencies
+
+      - name: 上传npm包
+        if: ${{ matrix.platform.label == 'linux-x86_64' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: "npm-package"
+          path: |
+            dist/index.js
+            dist/index.d.ts
+            package.json   
