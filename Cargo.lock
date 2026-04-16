@@ -441,7 +441,7 @@ checksum = "f678cf4a922c215c63e0de95eb1ff08a958a81d47e485cf9da1e27bf6305cfa5"
 
 [[package]]
 name = "dwt_watermark"
-version = "1.0.9"
+version = "1.0.10"
 dependencies = [
  "chrono",
  "env_logger",
