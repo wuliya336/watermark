@@ -83,12 +83,11 @@ jobs:
           pnpm i -g @napi-rs/cli
           pnpm config set provenance true
           pnpm config set registry https://registry.npmjs.org/
-          echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           napi create-npm-dirs
           napi artifacts
           pnpm publish --access public
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Sync to Taobao Mirror
         run: |

@@ -4,7 +4,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ikenxuan/watermark"
+    "url": "git+https://github.com/ikenxuan/watermark.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
