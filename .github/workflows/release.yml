@@ -86,7 +86,7 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
           napi create-npm-dirs
           napi artifacts
-          pnpm publish --access public --no-git-checks --ignore-scripts
+          pnpm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
