@@ -103,7 +103,7 @@ jobs:
           path: ${{ steps.build.outputs.output-path }}
 
       - name: 移除开发依赖
-        run: pnpm pkg delete scripts devDependencies
+        run: pnpm pkg delete devDependencies
 
       - name: 上传npm包
         if: ${{ matrix.platform.label == 'linux-x86_64' }}
