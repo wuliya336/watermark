@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.11](https://github.com/ikenxuan/watermark/compare/v1.0.10...v1.0.11) (2026-04-16)
+
+
+### 🐛 错误修复
+
+* ci ([ae93d76](https://github.com/ikenxuan/watermark/commit/ae93d76c903babe71d1158c877b64fc5da673648))
+
 ## [1.0.10](https://github.com/ikenxuan/watermark/compare/v1.0.9...v1.0.10) (2026-04-16)
 
 
