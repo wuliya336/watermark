@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9](https://github.com/ikenxuan/watermark/compare/v1.0.8...v1.0.9) (2026-04-16)
+
+
+### 🐛 错误修复
+
+* Update build.yaml ([1d21540](https://github.com/ikenxuan/watermark/commit/1d21540bf9433e9437fac24e7095d440b0f6ccfd))
+
 ## [1.0.8](https://github.com/ikenxuan/watermark/compare/v1.0.7...v1.0.8) (2026-04-16)
 
 
