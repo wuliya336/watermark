@@ -148,7 +148,7 @@ jobs:
           pnpm config set registry https://registry.npmjs.org/
           napi create-npm-dirs
           napi artifacts
-          pnpm publish --access public
+          pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
