@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/ikenxuan/watermark/compare/v1.0.11...v1.1.0) (2026-05-19)
+
+
+### ✨ 新功能
+
+* 重写 ([#20](https://github.com/ikenxuan/watermark/issues/20)) ([2e0eb04](https://github.com/ikenxuan/watermark/commit/2e0eb044d9484fc2e4cbb5cf5a27054ab6518311))
+
+
+### 🐛 错误修复
+
+* ci ([73717e7](https://github.com/ikenxuan/watermark/commit/73717e7c8df2fdd0f589d2479e64dfc7c5bd1bda))
+
 ## [1.0.11](https://github.com/ikenxuan/watermark/compare/v1.0.10...v1.0.11) (2026-04-16)
 
 
