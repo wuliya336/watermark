@@ -135,7 +135,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v3
@@ -146,9 +145,13 @@ jobs:
         run: |
           pnpm i -g @napi-rs/cli
           pnpm config set provenance true
+          pnpm config set registry https://registry.npmjs.org/
+          npm config set //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}
           napi create-npm-dirs
           napi artifacts
           pnpm publish --access public --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Sync to Taobao Mirror
         run: |
