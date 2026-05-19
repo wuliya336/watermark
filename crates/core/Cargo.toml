@@ -1,0 +1,14 @@
+[package]
+name = "dwt-watermark-core"
+version = "1.0.11"
+edition = "2024"
+
+[dependencies]
+rayon = "1.10.0"
+md5 = "0.8.0"
+log = "0.4"
+nalgebra = "0.33"
+rand = "0.8"
+
+[dev-dependencies]
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }

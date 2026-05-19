@@ -4,3 +4,13 @@ npm
 node_modules
 dist
 
+# Claude Code
+.claude/
+
+# Tauri generated schemas
+src-tauri/gen/
+
+# OS files
+.DS_Store
+Thumbs.db
+

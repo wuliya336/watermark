@@ -1,0 +1,232 @@
+name: Publish Preview
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags:
+      - "!**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-native:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            label: windows-x86_64
+          - runner: macos-latest
+            target: aarch64-apple-darwin
+            label: macos-aarch64
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            label: linux-x86_64
+    runs-on: ${{ matrix.platform.runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build native binary
+        run: pnpm napi:build
+
+      - name: Upload native binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.platform.target }}
+          path: |
+            dist/*.node
+            dist/index.js
+            dist/index.d.ts
+
+  build-tauri:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'windows-latest'
+            args: ''
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install x86_64 target (macOS only)
+        if: matrix.args == '--target x86_64-apple-darwin'
+        run: rustup target add x86_64-apple-darwin
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.1-dev libjavascriptcoregtk-4.1-dev libsoup-3.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri
+        run: pnpm tauri build ${{ matrix.args }}
+
+      - name: Compute artifact name
+        id: artifact-name
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.args }}" ]; then
+            target="${{ matrix.args }}"
+            target="${target#--target }"
+            echo "name=tauri-${{ matrix.platform }}-${target}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=tauri-${{ matrix.platform }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Tauri artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact-name.outputs.name }}
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
+
+  publish-preview:
+    needs: [build-native, build-tauri]
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.publish.outputs.sha }}
+      urls: ${{ steps.publish.outputs.urls }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Download all native binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: native-*
+
+      - name: Copy glue code to dist
+        run: |
+          mkdir -p dist
+          cp artifacts/native-x86_64-unknown-linux-gnu/index.js dist/
+          cp artifacts/native-x86_64-unknown-linux-gnu/index.d.ts dist/
+
+      - name: Setup npm dirs and sync versions
+        run: |
+          pnpm create-npm-dirs
+          node scripts/sync-npm-dirs.cjs
+
+      - name: Remove frontend dependencies
+        run: |
+          pnpm pkg delete dependencies
+          pnpm pkg delete devDependencies
+
+      - name: Publish to pkg.pr.new
+        id: publish
+        run: pnpm exec pkg-pr-new publish --comment=off '.' './npm/*'
+
+      - name: Generate short sha
+        id: gen-cmd
+        run: |
+          FULL_SHA="${{ steps.publish.outputs.sha }}"
+          SHORT_SHA="${FULL_SHA:0:7}"
+          echo "short_sha=$SHORT_SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Get Tauri artifact names
+        id: tauri-artifacts
+        run: |
+          ARTIFACTS=$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts --jq '.artifacts[] | select(.name | startswith("tauri-")) | "- **\(.name)**"')
+          echo "artifacts<<EOF" >> "$GITHUB_OUTPUT"
+          echo "$ARTIFACTS" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post PR comment
+        if: github.event_name == 'pull_request'
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            ## 📦 预览包发布成功
+
+            ### 🏷️ 包信息
+            - **主包:** `@ikenxuan/watermark`
+            - **提交:** [`${{ steps.gen-cmd.outputs.short_sha }}`](https://github.com/${{ github.repository }}/tree/${{ github.sha }})
+
+            ### 📥 NPM 安装命令
+            ```bash
+            npm i https://pkg.pr.new/@ikenxuan/watermark@${{ steps.gen-cmd.outputs.short_sha }}
+            ```
+
+            ### 📦 可选依赖包
+            ```bash
+            npm i ${{ steps.publish.outputs.urls }}
+            ```
+
+            ### 💻 Tauri 桌面应用
+            ${{ steps.tauri-artifacts.outputs.artifacts }}
+
+            请在 [Actions 运行页面](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) 下载对应平台的安装包。
+          comment-tag: published-packages
+          mode: upsert
+          reactions: rocket

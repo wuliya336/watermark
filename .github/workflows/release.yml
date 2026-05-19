@@ -32,30 +32,78 @@ jobs:
     uses: ./.github/workflows/build.yaml
     secrets: inherit
 
-  build-gui:
+  build-tauri:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-22.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
-      
-      - name: Install Rust
-        uses: puniyu/setup-rust@main
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          target: x86_64-pc-windows-msvc
-          cache: false
-        
-      - name: Build GUI
-        run: cargo build --release --bin dwt_watermark --features gui
-        
-      - name: Upload GUI artifact
+          node-version: lts/*
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (ubuntu only)
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build Tauri
+        run: pnpm tauri build ${{ matrix.args }}
+
+      - name: Compute artifact name
+        id: artifact-name
+        shell: bash
+        run: |
+          if [ -n "${{ matrix.args }}" ]; then
+            target="${{ matrix.args }}"
+            target="${target#--target }"
+            echo "name=tauri-${{ matrix.platform }}-${target}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=tauri-${{ matrix.platform }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Upload Tauri artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gui-exe
-          path: target/release/dwt_watermark.exe
+          name: ${{ steps.artifact-name.outputs.name }}
+          path: |
+            src-tauri/target/release/bundle/msi/*.msi
+            src-tauri/target/release/bundle/nsis/*.exe
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/deb/*.deb
 
   publish:
-    needs: [release-please, build-node-bindings, build-gui]
+    needs: [release-please, build-node-bindings, build-tauri]
     if: needs.release-please.outputs.release_created == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -64,20 +112,29 @@ jobs:
         with:
           name: npm-package
           path: .
-          
+
       - name: Download Node bindings
         uses: actions/download-artifact@v4
         with:
           path: artifacts
           pattern: watermark*
 
+      - name: Download Tauri artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: tauri-artifacts
+          pattern: tauri-*
+
       - name: Setup Nodejs
-        uses: puniyu/setup-node@main
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          pnpm-version: latest
-          cache: false
-          
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
       - name: Setup NPM Dirs
         run: |
           pnpm i -g @napi-rs/cli
@@ -97,16 +154,10 @@ jobs:
           curl -X PUT "https://registry-direct.npmmirror.com/-/package/@ikenxuan/watermark-linux-x64-gnu/syncs"
           curl -X PUT "https://registry-direct.npmmirror.com/-/package/@ikenxuan/watermark-linux-arm64-gnu/syncs"
 
-      - name: Download GUI artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: gui-exe
-          path: gui
-          
-      - name: Upload to GitHub Release
+      - name: Upload Tauri to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
-            gui/dwt_watermark.exe
-          fail_on_unmatched_files: true
+            tauri-artifacts/**/*
+          fail_on_unmatched_files: false
