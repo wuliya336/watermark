@@ -113,4 +113,6 @@ jobs:
           path: |
             dist/index.js
             dist/index.d.ts
-            package.json   
+            package.json
+            README.md
+            LICENSE
