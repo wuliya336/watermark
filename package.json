@@ -1,6 +1,6 @@
 {
   "name": "@ikenxuan/watermark",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "图片数字盲水印嵌入与提取工具",
   "author": "ikenxuan",
   "homepage": "https://github.com/ikenxuan/watermark#readme",
