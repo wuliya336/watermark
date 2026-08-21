@@ -1,5 +1,67 @@
 # Changelog
 
+## [1.4.0](https://github.com/wuliya336/watermark/compare/v1.3.1...v1.4.0) (2026-08-21)
+
+
+### ✨ 新功能
+
+* add support for Windows ARM64 and macOS x86_64 targets ([afb8ba7](https://github.com/wuliya336/watermark/commit/afb8ba73df0a9d0c9e17a468d3f4a2cfe9c47f6f))
+* enhance build process by adding caching for Node and Rust dependencies ([50a220b](https://github.com/wuliya336/watermark/commit/50a220becd0f6d78b7456e1068fed3590d5f255a))
+* update GitHub Actions workflows to use latest action versions and add build-tauri workflow ([4fee1fc](https://github.com/wuliya336/watermark/commit/4fee1fc9485c0fe4a5d3c9b2191b141d4d53dca5))
+* update workflows and scripts for improved build and publish process, remove deprecated files ([0f401e5](https://github.com/wuliya336/watermark/commit/0f401e5a57ec5818a9acbb3788437b5d8b75cb4e))
+* 重写 ([#20](https://github.com/wuliya336/watermark/issues/20)) ([2e0eb04](https://github.com/wuliya336/watermark/commit/2e0eb044d9484fc2e4cbb5cf5a27054ab6518311))
+
+
+### 🐛 错误修复
+
+* 114514 ([a6c0bbe](https://github.com/wuliya336/watermark/commit/a6c0bbe95a1762a3f3c10f73e201b12ddf3dae3d))
+* 114514 ([03a3d4f](https://github.com/wuliya336/watermark/commit/03a3d4fc66ac8276e97c008d31121fb67ea66dbf))
+* 114514 ([7e04688](https://github.com/wuliya336/watermark/commit/7e046888d31147d2a8d6b5ece6fcba42a1bf5155))
+* 114514 ([49a3724](https://github.com/wuliya336/watermark/commit/49a3724515b2a5b5a5766db9b2d3b52208f064d1))
+* 114514 ([50ca2d8](https://github.com/wuliya336/watermark/commit/50ca2d89bb9759cd60b4916db5ca5fa124225d5d))
+* ci ([e9ba85c](https://github.com/wuliya336/watermark/commit/e9ba85c6a9e77bb0dc0c7bb22a26db127ff00600))
+* ci ([ce85fdb](https://github.com/wuliya336/watermark/commit/ce85fdb017990e867b68213696d5066e2e08738b))
+* ci ([3e25dea](https://github.com/wuliya336/watermark/commit/3e25dea1640b68f46056e840aac7fa11ae409265))
+* ci ([b4ce4ac](https://github.com/wuliya336/watermark/commit/b4ce4acd05e62c9961d7c4702597d8e855b36467))
+* ci ([39441b1](https://github.com/wuliya336/watermark/commit/39441b18576d713654a60375438f6f4f305f0e47))
+* ci ([73717e7](https://github.com/wuliya336/watermark/commit/73717e7c8df2fdd0f589d2479e64dfc7c5bd1bda))
+* ci ([ae93d76](https://github.com/wuliya336/watermark/commit/ae93d76c903babe71d1158c877b64fc5da673648))
+* compress ([f9dbff0](https://github.com/wuliya336/watermark/commit/f9dbff0c95d2e87bebb2e1cb8d60cc2fc1a344a9))
+* correct Rust target installation step and update artifact paths ([3ed949f](https://github.com/wuliya336/watermark/commit/3ed949f3958fa1d00446bed3d03c249d3e4e81a1))
+* pkg ([4787967](https://github.com/wuliya336/watermark/commit/478796704f5a6ce7cc8557cbcfc2bfa6de4ed9a9))
+* Update build.yaml ([1d21540](https://github.com/wuliya336/watermark/commit/1d21540bf9433e9437fac24e7095d440b0f6ccfd))
+* Update release.yml ([566e079](https://github.com/wuliya336/watermark/commit/566e0798688ef6ed977332f41e2946098dc454b2))
+* Update release.yml ([8a41b99](https://github.com/wuliya336/watermark/commit/8a41b9995a33f38d326c9c38392591ffddaaf462))
+* 提升性能 ([452bc93](https://github.com/wuliya336/watermark/commit/452bc936016c8f485ce629ae05d780f8331f4c5b))
+* 改进奇异值分解（SVD）处理和更新块提取，以返回选项 ([0952eb1](https://github.com/wuliya336/watermark/commit/0952eb1917482799f754cfb1db5a1e841f0d46d9))
+* 细优 ([ba04cf4](https://github.com/wuliya336/watermark/commit/ba04cf45b0357c54945905dcc294b259fd1e7095))
+
+
+### 🔧 其他更新
+
+* **main:** release 1.0.1 ([#2](https://github.com/wuliya336/watermark/issues/2)) ([3b640b0](https://github.com/wuliya336/watermark/commit/3b640b0f7e68cc92b04579b502003e7c665a5446))
+* **main:** release 1.0.10 ([#18](https://github.com/wuliya336/watermark/issues/18)) ([7a8e6ea](https://github.com/wuliya336/watermark/commit/7a8e6ea3fbae79295cf4a7493edfd05c522cb0b7))
+* **main:** release 1.0.11 ([#19](https://github.com/wuliya336/watermark/issues/19)) ([91f8bb5](https://github.com/wuliya336/watermark/commit/91f8bb51d4c644a32d523f775004cceb77d177c0))
+* **main:** release 1.0.2 ([#3](https://github.com/wuliya336/watermark/issues/3)) ([85a19f5](https://github.com/wuliya336/watermark/commit/85a19f56e236811eaf6d08c95975d20cc8851c62))
+* **main:** release 1.0.3 ([#4](https://github.com/wuliya336/watermark/issues/4)) ([5c4763b](https://github.com/wuliya336/watermark/commit/5c4763b8d5ec0b216a25f881f17fe52eacb5d2ca))
+* **main:** release 1.0.4 ([#5](https://github.com/wuliya336/watermark/issues/5)) ([387b1e7](https://github.com/wuliya336/watermark/commit/387b1e72d143cd9254999e62a29168342e0cd0b1))
+* **main:** release 1.0.5 ([#6](https://github.com/wuliya336/watermark/issues/6)) ([a5214c4](https://github.com/wuliya336/watermark/commit/a5214c4f3993efac37fdecb39eed78652a5dd555))
+* **main:** release 1.0.6 ([#7](https://github.com/wuliya336/watermark/issues/7)) ([4409c91](https://github.com/wuliya336/watermark/commit/4409c910bd55b6ecf7b86f0ffe3cf16dc7afeba3))
+* **main:** release 1.0.7 ([#15](https://github.com/wuliya336/watermark/issues/15)) ([75e934b](https://github.com/wuliya336/watermark/commit/75e934b1fc62592f61875bccc60018d7b1db61fd))
+* **main:** release 1.0.8 ([#16](https://github.com/wuliya336/watermark/issues/16)) ([512c68d](https://github.com/wuliya336/watermark/commit/512c68d8559fa24436e4a4bacd2d5ce0c02e6410))
+* **main:** release 1.0.9 ([#17](https://github.com/wuliya336/watermark/issues/17)) ([d67657a](https://github.com/wuliya336/watermark/commit/d67657abcc170fe856e9c0e0427c2151a864f4ef))
+* **main:** release 1.1.0 ([#21](https://github.com/wuliya336/watermark/issues/21)) ([d117c32](https://github.com/wuliya336/watermark/commit/d117c3246169b3f4746cb38d217a97cd46809a2f))
+* **main:** release 1.1.1 ([#22](https://github.com/wuliya336/watermark/issues/22)) ([81bef20](https://github.com/wuliya336/watermark/commit/81bef20c58b8d1c5e17065b776f9ad4a350064c6))
+* **main:** release 1.1.2 ([#23](https://github.com/wuliya336/watermark/issues/23)) ([b23646d](https://github.com/wuliya336/watermark/commit/b23646dcdf3400f2d22594cc60700b2387f8f088))
+* **main:** release 1.1.3 ([#24](https://github.com/wuliya336/watermark/issues/24)) ([93252fa](https://github.com/wuliya336/watermark/commit/93252fa082eff63822aad7c548a625933dc15fda))
+* **main:** release 1.1.4 ([#25](https://github.com/wuliya336/watermark/issues/25)) ([3d71df1](https://github.com/wuliya336/watermark/commit/3d71df1af1dcbfad836ba159010117853db5f7b9))
+* **main:** release 1.1.5 ([#26](https://github.com/wuliya336/watermark/issues/26)) ([75a3997](https://github.com/wuliya336/watermark/commit/75a3997a5e7c4dbf503e8b3be70597c6a81c4fe4))
+* **main:** release 1.1.6 ([#27](https://github.com/wuliya336/watermark/issues/27)) ([1a7f6f8](https://github.com/wuliya336/watermark/commit/1a7f6f8f3bba00811c9c4a1f645170035285c428))
+* **main:** release 1.2.0 ([#28](https://github.com/wuliya336/watermark/issues/28)) ([6270482](https://github.com/wuliya336/watermark/commit/627048224482f69b0d7e50c4bb42f7414e68cf11))
+* **main:** release 1.3.0 ([#29](https://github.com/wuliya336/watermark/issues/29)) ([addeeaf](https://github.com/wuliya336/watermark/commit/addeeaf462a31c25e4543662838e9f6ebe8ea18e))
+* **main:** release 1.3.1 ([#30](https://github.com/wuliya336/watermark/issues/30)) ([3fda282](https://github.com/wuliya336/watermark/commit/3fda2829a241cd4d9a1426c01dfed167b22fe42e))
+* 添加NPM库构建工作流并优化算法实现 ([62e7206](https://github.com/wuliya336/watermark/commit/62e7206e7ad4a71789fe0d46dd3f49b88812cc1e))
+
 ## [1.3.1](https://github.com/ikenxuan/watermark/compare/v1.3.0...v1.3.1) (2026-08-21)
 
 
